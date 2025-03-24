@@ -1,3 +1,5 @@
+using DeletarContato.Application.Services;
+using DeletarContato.Domain.Domain;
 using DeletarContato.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,14 +10,23 @@ namespace DeletarContato.API.Controllers;
 [ApiController]
 public class DeletarContatoController : ControllerBase
 {
-    // private readonly IContatoService _contatoService;
+    private readonly IContatoService _contatoService;
     private readonly ContactZoneDbContext _context;
 
-    public DeletarContatoController(ContactZoneDbContext context)
+    public DeletarContatoController(ContactZoneDbContext context, IContatoService contatoService)
     {
         _context = context;
+        _contatoService = contatoService;
     }
 
+    [HttpPost("deletar-contato-mensageria/{id}")]
+    public IActionResult EnviarContatoParaDeletar(int id)
+    {
+        var contato = new ContactDomain { Id = id };
+        _contatoService.EnviarContatoParaFila(contato);
+        return Ok("Contato enviado para a fila para ser deletado.");
+    }
+    
     [HttpDelete("deletar-contato-api/{id}")]
     public async Task<IActionResult> DeletarContato(int id)
     {

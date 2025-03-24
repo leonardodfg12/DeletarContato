@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using DeletarContato.Application.Services;
+using DeletarContato.Infrastructure.Config;
 using DeletarContato.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +23,10 @@ public partial class Program
                 sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 
         // Configurar MassTransit via Infrastructure
-        // builder.Services.AddMassTransitConfiguration(builder.Configuration);
+        builder.Services.AddMassTransitConfiguration(builder.Configuration);
 
         // Adicionar serviços ao container
-        // builder.Services.AddScoped<IContatoService, ContatoService>();
+        builder.Services.AddScoped<IContatoService, ContatoService>();
         
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -33,11 +35,11 @@ public partial class Program
         var app = builder.Build();
 
         // Garante que o banco e as tabelas existam antes de iniciar a aplicação
-        // using (var scope = app.Services.CreateScope())
-        // {
-        //     var dbContext = scope.ServiceProvider.GetRequiredService<ContactZoneDbContext>();
-        //     dbContext.Database.EnsureCreated();
-        // }
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ContactZoneDbContext>();
+            dbContext.Database.EnsureCreated();
+        }
 
         // Configuração do middleware
         if (app.Environment.IsDevelopment())
